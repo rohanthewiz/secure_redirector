@@ -3,25 +3,21 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 )
 
-func redirect(w http.ResponseWriter, req *http.Request) {
-	// drop non-default ports
-	target := "https://" + req.Host + req.URL.Path
-	if len(req.URL.RawQuery) > 0 {
-		target += "?" + req.URL.RawQuery
-	}
-	fmt.Printf("redirect to: %s", target)
-	http.Redirect(w, req, target, http.StatusPermanentRedirect)
-}
-
-
 func main() {
 	// redirect every http request to https
-	log.Fatal(http.ListenAndServe(":80", http.HandlerFunc(redirect)))
+	log.Fatal(http.ListenAndServe(":80",
+		http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			target := "https://ccswm.org"
+			if len(req.URL.RawQuery) > 0 {
+				target += "?" + req.URL.RawQuery
+			}
+			//fmt.Printf("redirecting to: %s", target)
+			http.Redirect(w, req, target, http.StatusPermanentRedirect)
+		})))
 
 	// serve index (and anything else) as https
 	//mux := http.NewServeMux()
